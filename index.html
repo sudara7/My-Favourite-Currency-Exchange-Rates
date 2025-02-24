@@ -9,9 +9,6 @@
   <!-- Link to Manifest File -->
   <link rel="manifest" href="manifest.json">
 
-  <!-- Link to Stylesheet -->
-  <link rel="stylesheet" href="styles.css">
-
   <!-- Register Service Worker -->
   <script>
     if ('serviceWorker' in navigator) {
@@ -26,24 +23,103 @@
       });
     }
   </script>
+
+  <!-- Style for the Page -->
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f7fc;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+    }
+
+    h1 {
+      color: #333;
+      font-size: 2rem;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    #rates {
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      width: 100%;
+      max-width: 600px;
+      box-sizing: border-box;
+    }
+
+    h2 {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+      color: #2a3d66;
+    }
+
+    p {
+      font-size: 1.1rem;
+      color: #555;
+      margin-bottom: 15px;
+    }
+
+    .currency-value {
+      font-weight: bold;
+      font-size: 1.3rem;
+      color: #2a9d8f;
+    }
+
+    .loading {
+      font-style: italic;
+      color: #999;
+    }
+
+    /* Styling for Mobile Devices */
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      #rates {
+        padding: 15px;
+        width: 90%;
+      }
+
+      h2 {
+        font-size: 1rem;
+      }
+
+      p {
+        font-size: 1rem;
+      }
+
+      .currency-value {
+        font-size: 1.1rem;
+      }
+    }
+  </style>
 </head>
 <body>
   <h1>Currency Exchange Rates</h1>
   <div id="rates">
     <h2>SGD/LKR</h2>
-    <p id="sgd-lkr">Loading...</p>
+    <p id="sgd-lkr" class="loading">Loading...</p>
 
     <h2>AUD/LKR</h2>
-    <p id="aud-lkr">Loading...</p>
+    <p id="aud-lkr" class="loading">Loading...</p>
 
     <h2>NZD/LKR</h2>
-    <p id="nzd-lkr">Loading...</p>
+    <p id="nzd-lkr" class="loading">Loading...</p>
 
     <h2>USDT/AUD</h2>
-    <p id="usdt-aud">Loading...</p>
+    <p id="usdt-aud" class="loading">Loading...</p>
 
     <h2>USDT/NZD</h2>
-    <p id="usdt-nzd">Loading...</p>
+    <p id="usdt-nzd" class="loading">Loading...</p>
   </div>
 
   <!-- Currency Data Fetching Script -->
@@ -66,13 +142,14 @@
         document.getElementById('nzd-lkr').innerText = rows[2][0] ? rows[2][0] : 'No Data';
         document.getElementById('usdt-aud').innerText = rows[3][0] ? rows[3][0] : 'No Data';
         document.getElementById('usdt-nzd').innerText = rows[4][0] ? rows[4][0] : 'No Data';
+
+        // Remove loading text after data is displayed
+        const loadingElements = document.querySelectorAll('.loading');
+        loadingElements.forEach(el => el.classList.remove('loading'));
       })
       .catch(error => {
         console.log("Error fetching currency data:", error);
       });
   </script>
-  
-  <!-- Link to Main Script -->
-  <script src="script.js"></script>
 </body>
 </html>
