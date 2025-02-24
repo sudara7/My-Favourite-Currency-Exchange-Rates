@@ -1,135 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Exchange Rates</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f4f4f4;
-            margin: 50px;
-        }
-        h2 {
-            color: #333;
-        }
-        table {
-            width: 50%;
-            margin: auto;
-            border-collapse: collapse;
-            background: white;
-            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 15px;
-            text-align: center;
-            font-size: 18px;
-        }
-        th {
-            background-color: #007bff;
-            color: white;
-        }
-        td {
-            font-weight: bold;
-        }
-        .error {
-            color: red;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Currency Tracker</title>
+
+  <!-- Link to Manifest File -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Link to Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- Register Service Worker -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then((registration) => {
+            console.log('Service Worker registered with scope:', registration.scope);
+          })
+          .catch((error) => {
+            console.log('Service Worker registration failed:', error);
+          });
+      });
+    }
+  </script>
 </head>
 <body>
+  <h1>Currency Exchange Rates</h1>
+  <div id="rates">
+    <h2>SGD/LKR</h2>
+    <p id="sgd-lkr">Loading...</p>
 
-    <h2>Live Currency Exchange Rates</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Currency Pair</th>
-                <th>Exchange Rate</th>
-            </tr>
-        </thead>
-        <tbody id="currencyTable">
-            <tr>
-                <td>SGD/LKR</td>
-                <td id="sgd-lkr">Loading...</td>
-            </tr>
-            <tr>
-                <td>AUD/LKR</td>
-                <td id="aud-lkr">Loading...</td>
-            </tr>
-            <tr>
-                <td>NZD/LKR</td>
-                <td id="nzd-lkr">Loading...</td>
-            </tr>
-            <tr>
-                <td>USDT/AUD</td>
-                <td id="usdt-aud">Loading...</td>
-            </tr>
-            <tr>
-                <td>USDT/NZD</td>
-                <td id="usdt-nzd">Loading...</td>
-            </tr>
-        </tbody>
-    </table>
+    <h2>AUD/LKR</h2>
+    <p id="aud-lkr">Loading...</p>
 
-    <script>
-        async function fetchCurrencyData() {
-            const sheetUrl = "https://docs.google.com/spreadsheets/d/1lpJGqLg-hLFJM3hJlMQWOBn1ldgh8vKSzbbGQQaw_qo/export?format=csv";
+    <h2>NZD/LKR</h2>
+    <p id="nzd-lkr">Loading...</p>
 
-            try {
-                const response = await fetch(sheetUrl);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
+    <h2>USDT/AUD</h2>
+    <p id="usdt-aud">Loading...</p>
 
-                const data = await response.text();
-                console.log("Fetched Data:", data); // Debugging
+    <h2>USDT/NZD</h2>
+    <p id="usdt-nzd">Loading...</p>
+  </div>
 
-                // Clean and split the data properly
-                const rows = data.trim().split(/\r?\n/).map(row => row.trim());
+  <!-- Currency Data Fetching Script -->
+  <script>
+    const sheetUrl = "https://docs.google.com/spreadsheets/d/1lpJGqLg-hLFJM3hJlMQWOBn1ldgh8vKSzbbGQQaw_qo/gviz/tq?tqx=out:csv&sheet=Sheet1";
+    
+    // Fetching CSV data
+    fetch(sheetUrl)
+      .then(response => response.text())
+      .then(csvData => {
+        console.log("Fetched Data:", csvData);
+        
+        // Parsing CSV
+        const rows = csvData.split('\n').map(row => row.split(','));
+        console.log("Parsed Rows:", rows);
 
-                // Debugging output
-                console.log("Parsed Rows:", rows);
-
-                // Ensure there are at least 5 rows
-                if (rows.length < 5) {
-                    throw new Error("Insufficient data in the sheet");
-                }
-
-                // Assign values
-                document.getElementById("sgd-lkr").textContent = rows[0]; // SGD/LKR
-                document.getElementById("aud-lkr").textContent = rows[1]; // AUD/LKR
-                document.getElementById("nzd-lkr").textContent = rows[2]; // NZD/LKR
-                document.getElementById("usdt-aud").textContent = rows[3]; // USDT/AUD
-                document.getElementById("usdt-nzd").textContent = rows[4]; // USDT/NZD
-
-            } catch (error) {
-                console.error("Error fetching currency data:", error);
-                
-                // Set all fields to error
-                document.getElementById("sgd-lkr").textContent = "Error";
-                document.getElementById("sgd-lkr").classList.add("error");
-                
-                document.getElementById("aud-lkr").textContent = "Error";
-                document.getElementById("aud-lkr").classList.add("error");
-                
-                document.getElementById("nzd-lkr").textContent = "Error";
-                document.getElementById("nzd-lkr").classList.add("error");
-                
-                document.getElementById("usdt-aud").textContent = "Error";
-                document.getElementById("usdt-aud").classList.add("error");
-                
-                document.getElementById("usdt-nzd").textContent = "Error";
-                document.getElementById("usdt-nzd").classList.add("error");
-            }
-        }
-
-        fetchCurrencyData();
-        setInterval(fetchCurrencyData, 60000); // Refresh every 60 seconds
-    </script>
-
+        // Assign currency values to respective elements
+        document.getElementById('sgd-lkr').innerText = rows[0][0] ? rows[0][0] : 'No Data';
+        document.getElementById('aud-lkr').innerText = rows[1][0] ? rows[1][0] : 'No Data';
+        document.getElementById('nzd-lkr').innerText = rows[2][0] ? rows[2][0] : 'No Data';
+        document.getElementById('usdt-aud').innerText = rows[3][0] ? rows[3][0] : 'No Data';
+        document.getElementById('usdt-nzd').innerText = rows[4][0] ? rows[4][0] : 'No Data';
+      })
+      .catch(error => {
+        console.log("Error fetching currency data:", error);
+      });
+  </script>
+  
+  <!-- Link to Main Script -->
+  <script src="script.js"></script>
 </body>
 </html>
